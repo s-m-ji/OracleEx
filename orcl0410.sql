@@ -13,8 +13,10 @@ select * from book order by bookNO;
 -- max : 컬럼의 최대값을 반환함
 select max(bookNo)+1 from book;
 
+select max(bookNo)+1 from book;
 
-insert into book values(max(bookNo)+1, 'H마트에서 울다', '미셸', 'Y');
+-- 아래와 같은 형식으로 써야한다고 하셨는데요.. 보통 시퀀스를 사용할거기때문에 일단 패스하기로 !
+insert into book values((select max(bookNo)+1 from book), 'H마트에서 울다', '미셸', 'Y');
 insert into book values(2, '천년의사랑', '양귀자', 'N');
 insert into book values(3, '한.다.된', '양귀자', 'N');
 
