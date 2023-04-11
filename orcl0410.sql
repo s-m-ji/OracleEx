@@ -52,6 +52,10 @@ select * from book where bookNo = 1;
 
 drop table user_notnull;
 
+select * from book;
+
+delete from book where book.bookno = 4;
+
 
 -- 테이블 스페이스 경로 조회
 SELECT * FROM DBA_DATA_FILES;
