@@ -11,19 +11,19 @@
     alter table 테이블명 수정할 내용;
     
     * 수정할 내용
-        1) 컬럼추가/수정/삭제
+        1) 컬럼 추가/수정/삭제
         2) 제약조건 추가/삭제   
-        *제약조건은 수정 불가능(삭제 후 재추가) *다만 not null은 수정이 가능함.  *이름을 주지 않으면 알아서 지어짐.. 
+            *제약조건은 수정 불가능(삭제 후 재추가) *다만 not null은 수정이 가능함.  *이름을 주지 않으면 알아서 지어짐.. 
         3) 테이블명/컬럼명/제약조건명 변경
 */
 
 -- 테이블 복사하여 생성하기 
 create table dept_copy
 as select * from dept;
---as select DEPARTMENT_ID from dept;                -- 내가 원하는 컬럼만 복사 가능
---as select * from dept where DEPARTMENT_ID=70;     -- 내가 원하는 세부 조건으로만 복사 가능 
---as select DEPARTMENT_ID dept_id from dept;        -- 내가 원하는 별칭으로 복사 가능 
---as select * from dept where 0>1;                  -- 조건이 true가 아닐 때는 데이터 복사 불가
+--as select DEPARTMENT_ID from dept;                -- 특정 컬럼만 복사 가능
+--as select * from dept where DEPARTMENT_ID=70;     -- where 조건에 맞는 데이터만 복사 가능 
+--as select DEPARTMENT_ID dept_id from dept;        -- 특정 컬럼을 내가 만든 별칭으로 복사 가능 
+--as select * from dept where 0>1;                  -- where 조건에 맞지 않는 즉, true가 아닐 때는 데이터 복사 불가
 
 -- 테이블 삭제하기 
 drop table dept_copy;
@@ -92,14 +92,14 @@ select * from dept_copy;
     /*
     2) 제약조건 추가/삭제
         2-1) 제약조건 추가
-        primary key : (unique + notnull) 식별키
-            alter table명 add [constraint 제약조건명] primary key(컬럼명);
-        unique :
-            alter table명 add [constraint 제약조건명] unique(컬럼명);
-        check :
-            alter table명 add [constraint 제약조건명] check(컬럼에 대한 조건);
-        not null :
-            alter table명 modify 컬럼명 [constraint 제약조건명] not null;
+            primary key : (unique + notnull) 식별키
+                alter 테이블명 add [constraint 제약조건명] primary key(컬럼명);
+            unique :
+                alter 테이블명 add [constraint 제약조건명] unique(컬럼명);
+            check :
+                alter 테이블명 add [constraint 제약조건명] check(컬럼에 대한 조건);
+            not null :
+                alter 테이블명 modify 컬럼명 [constraint 제약조건명] not null;
     */
 
 -- dept_copy 테이블 다시 만들기
@@ -115,7 +115,6 @@ create table dept_copy(
 
     );
 
--- TODO
 alter table dept_copy
     add CONSTRAINT dept_copy_dept_id_pk PRIMARY KEY (dept_id)       --> dept_copy_dept_id_pk 이건 그냥 제약조건명 : 말그대로 밍쯔 !
     add CONSTRAINT dept_copy_dept_name_uq unique (dept_name)
@@ -123,17 +122,17 @@ alter table dept_copy
 
 -- 작성한 제약 조건 확인
 select uc.constraint_name, uc.constraint_type, uc.table_name, ucc.column_name
-from user_constraint uc
+from user_constraints uc
     join user_cons_columns ucc      --> join : 테이블을 합칠 때 씀 / 컬럼명이 겹칠 경우에는 별칭을 앞에 둬서 구분하도록한다.
         on uc.constraint_name = ucc.constraint_name
         -- 검색하려는 테이블명
-        where ucc.table_name = 'dept_copy';                         ----->>>>> TODO 테이블 또는 뷰가 존재하지않습니다..? 어흑마이깟
+        where ucc.table_name = 'DEPT_COPY';                         
         
 -- constraint_type (c:check, p:primary key, u:unique)
 
--- pk: null 입력이 불가능하고 중복된 값이 저장될 수 없다.
+-- pk: null 입력이 불가능하고(not null) 중복된 값이 저장될 수 없다.(unique)
 insert into dept_copy (dept_id, dept_name, create_name)
-    values(10,'테스트',sysdate);   -- 유니크 제약 조건에 걸림 
+    values(10,'테스트',sysdate);   -- 테이블에 이미 10이 있어서 유니크 제약 조건에 걸림 
     
 alter table dept_copy drop constraint dept_copy_dept_id_pk;
 
@@ -142,10 +141,10 @@ alter table dept_copy modify create_date null;
 /*
     3) 테이블명/컬럼명/제약조건명 변경
     3-1) 컬럼명 변경
-        alter table 테이블명 rename column 기존컬럼명 to 변경할 컬럼명;
+        alter table 테이블명 rename column 기존 컬럼명 to 변경할 컬럼명;
         
     3-2) 제약조건의 이름 변경
-        alter table 테이블명 rename constraint 기존제약조건명 to 변경할 제약조건명;
+        alter table 테이블명 rename constraint 기존 제약조건명 to 변경할 제약조건명;
         
     3-3) 테이블명 변경
         1) alter table 테이블명 rename to 변경할 테이블명;
