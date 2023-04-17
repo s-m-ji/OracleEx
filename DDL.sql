@@ -45,7 +45,7 @@ select * from dept_copy;
         - 데이터 타입 변경
             alter table 테이블명 modify 컬럼명 변경할 데이터 타입;
         - 기본값 변경
-            alter tlable 테이블명 modify 컬럼명 default 변경할 값;        
+            alter table 테이블명 modify 컬럼명 default 변경할 값;        
 */
 
     alter table dept_copy modify DEPARTMENT_NAME varchar2(100);
