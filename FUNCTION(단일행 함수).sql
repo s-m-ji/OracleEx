@@ -47,7 +47,7 @@ select instr('aabaacccaaacab', 'b', 5,1) from dual;
 select instr('aabaacccaaacabbb', 'b', -1,1) from dual; 
 -- 뒤에서 1번째 위치에서부터 1번째 'b'의 자리를 반환
 
-select * from DEPT where instr('10|20|30', DEPARTMENT_ID)>0;
+select * from DEPT where instr('10|20|30', DEPT_ID)>0;
 
 select emp_name || '님 안녕하새우~~~' from emp;
 

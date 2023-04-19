@@ -309,7 +309,7 @@ SELECT * FROM SAL_GRADE;
 -- MANAGER_ID : 매니저 사번
 SELECT E.EMP_ID 사번, E.EMP_NAME 사원명, E.DEPT_CODE 부서코드, E.MANAGER_ID 매니저코드
     , M.EMP_ID 매니저사번 , M.EMP_NAME 매니저명
-FROM EMP E, EMP M
+FROM EMP E, EMP M                   -- 같은 테이블에 별칭을 다르게 주어서 가져옴
 WHERE E.MANAGER_ID = M.EMP_ID(+);   -- 매니저사번 모두 조회하기 위함
 
 
