@@ -6,8 +6,8 @@
             [START WITH 숫자] : 처음 발생시킬 시작 값, 기본값 1
             [INCREAMENT BY 숫자] : 다음 값에 대한 증가치, 기본값 1
             [MAXVALUE 숫자] : 발생시킬 최대값 10의 27승 -1
-            [MINVALUE 숫자] : 발생시클 최소값 -10의 26승
-            [CYCLE | NOCYCLE] : 시퀀스가 최대값에 도달할 경우 START WITHFH 돌아감
+            [MINVALUE 숫자] : 발생시킬 최소값 -10의 26승
+            [CYCLE | NOCYCLE] : 시퀀스가 최대값에 도달할 경우 START WITH으로 돌아감
             [CACHE 바이트크기 | NOCACHE]; : 메모리 상에서 시퀀스 값 관리(기본값 20 바이트)
 */
 CREATE SEQUENCE SEQ_EMP_COPY_ID 
@@ -15,10 +15,8 @@ START WITH 100;
 -- 현재 계정이 가지고 있는 스퀀스들에 대한 정보를 조회
 SELECT * FROM USER_SEQUENCES;
 
--- NEXTVAL를 한 번이라도 수행하지 않는 이상 CURRVAL을 가져올 수 없다.
--- CURRVAL는 마지막으로 수행된 NEXTVAL값을 저장해서 보여주는 값이다
-
-
+-- NEXTVAL를 한 번이라도 수행하지 않는 이상 CURRVAL을 가져올 수 없다. (조회할 때마다 +1이 된다)
+-- CURRVAL는 마지막으로 수행된 NEXTVAL값을 저장해서 보여주는 값이다. (+1이 되지 않은 값 그대로를 보여줌)
 
 SELECT SEQ_EMP_COPY_ID.CURRVAL FROM DUAL;
 SELECT SEQ_EMP_COPY_ID.NEXTVAL FROM DUAL;
