@@ -87,11 +87,11 @@ order by floor(months_between(sysdate, hire_date)/12) desc;
     7)round(date, year|month|day)
     - 반올림한 날짜를 반환
 */
-    select sysdate, round(sysdate, 'year')
-    , round(sysdate, 'month'), round(sysdate, 'day')
-    , round(to_date(20230620), 'month')round -- 반올림처리
-    , trunc(to_date(20230620), 'month')trunc -- 내림처리
-    from dual;
+    SELECT SYSDATE, ROUND(SYSDATE, 'year')
+    , ROUND(SYSDATE, 'month'), ROUND(SYSDATE, 'day') , ROUND(TO_DATE(20230503), 'day')  -- DAY에 대한 반올림 범위는 한 주(WEEK)인데 올림/내림 결과에 따라 가까운 일요일(1)을 보여준다. 
+    , ROUND(TO_DATE(20230620), 'month')ROUND -- 반올림처리
+    , TRUNC(TO_DATE(20230620), 'month')TRUNC -- 내림처리
+    FROM DUAL;
 
 /*
     8)trunc(date, year|month|day)

@@ -128,7 +128,7 @@ order by 나이extract;
 -- select에서 만들어둔 함수는 where에서 먼저 쓸 수 없음 ! 가공된 결과를 참조할 수 없음 !
 
 
-
+SELECT trunc(sysdate,'month') FROM DUAL;
 
 
 
