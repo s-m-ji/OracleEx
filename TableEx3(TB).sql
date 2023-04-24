@@ -40,7 +40,7 @@ FROM TB_PROFESSOR
 WHERE DEPARTMENT_NO IS NULL
 ;
     
--- Ex5) 학과가 지정되지 않은 학생을 조회 ===========> 있어요? 없어요. 없어요?? 테이블에 없어요.
+-- Ex5) 학과가 지정되지 않은 학생을 조회 ===========> 있어요? 없어요. 없어요?? 테이블에 데이터가 없어요.
 SELECT *
 FROM TB_STUDENT
 LEFT JOIN TB_DEPARTMENT USING (DEPARTMENT_NO)
@@ -212,8 +212,14 @@ GROUP BY STUDENT_NO, SUBSTR(TERM_NO,1,4)
 ORDER BY 학기
 ;
 
+-- Ex11) 동명이인 학생의 이름과 학생 수를 출력
+-- 내 생각 흐름 : STUDENT_NAME은 같지만, STUDENT_NO는 다름, 동명이인이면 학생수가 2명 이상 
 
-    
+SELECT STUDENT_NAME 이름, COUNT(*) 학생수
+FROM TB_STUDENT T
+GROUP BY STUDENT_NAME
+HAVING COUNT(*) > 1
+;    
     
     
     
