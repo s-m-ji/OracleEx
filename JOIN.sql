@@ -431,8 +431,6 @@ WHERE EMP_NAME LIKE '전%'              -- 성이 전 씨
 AND SUBSTR(EMP_NO,8,1) = '2' OR SUBSTR(EMP_NO,8,1) = '4'          
 AND EMP_NO LIKE '7%'    -- 70년대생 방법1)
 --AND SUBSTR(EMP_NO,1,1) = '7'    -- 70년대생 방법2)
-
--- TODO 만약 '-' 바로 뒷자리 숫자를 가져오라고 한다면 ???????????????????????
 ;
 
 SELECT SUBSTR((TO_CHAR(SYSDATE, 'YYYY') - SUBSTR(EMP_NO,1,2)),3) FROM EMP;

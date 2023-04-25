@@ -134,9 +134,3 @@ select least(1,10,3,-30) from dual;
 select name 
 from user01 order by name;
 
-
-
-
-
-
-

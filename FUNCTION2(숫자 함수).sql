@@ -69,12 +69,3 @@ from emp;
     select power(3,2), power(-10,2), power(-2,3) from dual;
     -- select POWER(-5, 3.01) from dual;
     SELECT POWER(5, 2), POWER(5, -3), POWER(-5, 3), POWER(5, 3.1) FROM DUAL;
-
-
-
-
-
-
-
-
-

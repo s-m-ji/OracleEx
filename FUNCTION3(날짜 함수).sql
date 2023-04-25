@@ -100,9 +100,3 @@ order by floor(months_between(sysdate, hire_date)/12) desc;
     select sysdate, trunc(sysdate, 'year')
     , trunc(sysdate, 'month'), trunc(sysdate, 'day')
     from dual;
-
-
-
-
-
-

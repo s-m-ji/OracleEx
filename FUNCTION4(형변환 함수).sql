@@ -103,8 +103,6 @@ select 123+'1234A' from dual;
             ,to_number('10,000,000', '99,999,999')
     from dual;
 
-
-
 -- 값을 도출하는 방식은 아주 다양함 ! 그 중에 가장 효율적인 방식으로 사용하면 되겠음다
 select CUST_NAME 이름, CUST_YEAR_OF_BIRTH 출생년도
     , months_between(trunc(sysdate,'month')
@@ -127,9 +125,4 @@ order by 나이extract;
 -- 쿼리의 실행 순서 : from > where > select > order 이렇게 코드가 돌아오기 때문에
 -- select에서 만들어둔 함수는 where에서 먼저 쓸 수 없음 ! 가공된 결과를 참조할 수 없음 !
 
-
 SELECT trunc(sysdate,'month') FROM DUAL;
-
-
-
-

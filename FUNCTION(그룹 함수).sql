@@ -207,7 +207,7 @@ order by 1,2;
 /*
     ========== ========== <grouping> ========== ==========
     rollup, cube에 의해 산출된 값이 
-    해당 컬럼의 집합 산출물이면 0을 반환 아니면 0을 반환
+    해당 컬럼의 집합 산출물이면 0을 반환 아니면 1을 반환
 */
 
 select DEPARTMENT_ID, JOB_ID,  sum(salary)
@@ -215,6 +215,13 @@ select DEPARTMENT_ID, JOB_ID,  sum(salary)
         , grouping (JOB_ID)
 from emp
 group by rollup(DEPARTMENT_ID, JOB_ID)
+order by 1,2
+;
+select DEPT_ID, JOB_ID,  sum(salary)
+        , grouping (DEPT_ID)
+        , grouping (JOB_ID)
+from emp
+group by rollup(DEPT_ID, JOB_ID)
 order by 1,2;
 
 /*
@@ -326,16 +333,9 @@ group by rollup(PERIOD, REGION)         ----> 기간과 지역에 대한 소계: 모든 값을
 
 -- having 조건을 추가할 경우 소계가 일치하지 않을 수 있다.      ----> having 조건으로 필터링 된 값은 집계에 보이지 않는 것  
 -- having 조건이 없는 상태에서 집계할 경우 소계 금액이 일치하는 것을 확인할 수 있다.
-
-
 /*
 ===== 결론 : having절은 결과집합에 대한 필터링이라고 볼 수 있음. 휴 !
-
-
-
-
 */
-
 order by 1
 ;
 -- 1023154.6
@@ -361,8 +361,6 @@ merge into 테이블명1 별칭1
     when not matched then
     insert(별칭1.컬럼1, 별칭1.컬럼4) values(별칭2.컬럼1, 별칭1.컬럼5*값3);
      
-
-
 select substr('ABCDEFG',-2,4) from dual;
 
 -- 근속년수 구하기 : round((sysdate - hire_date)/365)
@@ -419,9 +417,3 @@ SELECT period, 0 주택담보대출액, SUM(loan_jan_amt) 기타대출액
  WHERE period = '201311' 
    AND gubun = '주택담보대출'
  GROUP BY period, gubun;
-
-
-
-
-
-

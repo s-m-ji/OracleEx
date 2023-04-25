@@ -169,11 +169,201 @@ alter table dept_copy rename to dept_test;
 alter table dept_test rename to 테이블;
 
 rename 테이블 to dept_copy;
+---------------------------------------------------------------------------------------------------
+/*
+    SQL_DDL
+*/
 
+-- 》》》》》 Ex1) 계열 정보를 저장할 카테고리 테이블을 만들려고 한다. 다음과 같은 테이블을 작성하시오.
+CREATE TABLE TB_CATEGORY(
+    NAME VARCHAR(10)
+    ,USE_YN CHAR(1) DEFAULT 'Y' CHECK (USE_YN IN('Y','N'))
+);
 
+-- 》》》》》 Ex2) 과목 구분을 저장할 테이블을 만들려고 한다. 다음과 같은 테이블을 작성하시오.
+CREATE TABLE TB_CLASS_TYPE (
+    NO VARCHAR2(5) PRIMARY KEY
+    ,NAME VARCHAR2(10)
+);
 
+-- 》》》》》 Ex3) TB_CATEGORY 테이블의 NAME 컬럼에 PRIMARY KEY를 생성하시오.
+-- ALTER TABLE 테이블명 ADD CONSTRAINT 제약조건명 PRIMARY KEY (컬럼명)
+ALTER TABLE TB_CATEGORY ADD CONSTRAINT TB_CATEGORY_NAME_PK PRIMARY KEY (NAME);
 
+-- 》》》》》 Ex4) TB_CLASS_TYPE 테이블의 NAME 컬럼에 NULL 값이 들어가지 않도록 속성을 변경하시오.
+-- ALTER TABLE 테이블명 MODIFY 컬럼명 조건 CONSTRAINT 제약조건명 NOT NULL
+ALTER TABLE TB_CLASS_TYPE MODIFY NAME CONSTRAINT TB_CALSS_TYPE_NAME_NN NOT NULL;
 
+SELECT * FROM TB_CATEGORY;
+SELECT * FROM TB_CLASS_TYPE;
 
+DESC TB_CATEGORY;
+DESC TB_CLASS_TYPE;
 
+-- 》》》》》 Ex5) 두 테이블에서 컬럼 명이 NO인 것은 기존 타입을 유지하면서 크기는 10으로
+-- , 컬럼명이 NAME인 것은 마찬가지로 기존 타입을 유지하면서 크기 20으로 
+-- 변경하시오.
+ALTER TABLE TB_CLASS_TYPE MODIFY NO VARCHAR2(10) MODIFY NAME VARCHAR2(20);
+ALTER TABLE TB_CATEGORY MODIFY NAME VARCHAR2(20);
 
+ROLLBACK;
+
+-- 》》》》》 Ex6) 두 테이블의 NO 컬럼과 NAME 컬럼의 이름을 각 테이블 이름이 앞에 붙은 형태로 변경한다.
+-- EX. CATEGORY_NAME
+ALTER TABLE TB_CATEGORY RENAME COLUMN NAME TO CATEGORY_NAME;
+
+ALTER TABLE TB_CLASS_TYPE RENAME COLUMN NO TO CLASS_TYPE_NO;
+ALTER TABLE TB_CLASS_TYPE RENAME COLUMN NAME TO CLASS_TYPE_NAME;
+
+-- 》》》》》 Ex7) INSERT 문을 수행한다.
+SELECT CATEGORY
+FROM TB_DEPARTMENT
+GROUP BY CATEGORY;
+-- 한번에 하나의 값만 INSERT
+INSERT INTO TB_CATEGORY VALUES('인문사회', 'Y');
+-- 한번에 여러개 값 INSERT => TB_DEPARTMENT에서 CATEGORY 값을 서브쿼리로 가져오기
+INSERT INTO TB_CATEGORY (SELECT CATEGORY, 'Y'
+                        FROM TB_DEPARTMENT
+                        GROUP BY CATEGORY)
+;
+COMMIT;
+SELECT * FROM TB_CATEGORY;
+
+-- 》》》》》 Ex8) TB_DEPARTMENT의 CATEGORY 컬럼이 
+-- TB_CATEGORY 테이블의 CATEGORY_NAME 컬럼을 부모값으로 참조하도록 FOREIGN KEY를 지정하시오.
+-- 이 때 KEY 이름은 FK_테이블이름_컬럼이름으로 지정한다
+-- ALTER TABLE 테이블명 ADD CONSTRAINT 제약조건명 PRIMARY KEY (컬럼명) REFERENCES 참조할 테이블명 (컬럼명)
+ALTER TABLE TB_DEPARTMENT 
+    ADD CONSTRAINT FK_TB_DEPARTMENT_CATEGORY 
+        FOREIGN KEY (CATEGORY)
+            REFERENCES TB_CATEGORY (CATEGORY_NAME); 
+            
+-- 》》》》》 Ex9) 학생들의 정보만이 포함되어 있는 학생일반정보 VIEW를 만들고자 한다.
+-- 다음 내용을 참고하여 적절한 SQL문을 작성하시오. (학번, 학생이름, 주소)
+-- CREATE [OR REPLACE] VIEW 뷰名 AS 서브쿼리;
+-- alter table 테이블명 modify 컬럼명 변경할 데이터 타입;
+CREATE OR REPLACE VIEW VW_학생일반정보 (학번, 학생이름, 주소)
+AS ( SELECT STUDENT_NO, STUDENT_NAME, STUDENT_ADDRESS
+    FROM TB_STUDENT 
+);
+SELECT * FROM VW_학생일반정보;
+-- ALTER VIEW VW_학생일반정보 ADD COLUMN STUDENT_AGE NUMBER;   -- TODO 컬럼 추가해서 나이/성별 입력하기
+
+-- 》》》》》 Ex10) 1년에 두 번씩 학과별로 지도교수가 지도 면담을 진행한다.
+-- 이를 위해 사용할 학생이름, 학과이름, 담당교수이름으로 구성되어 있는 VIEW를 만드시오.
+-- 이때 지도 교사가 없는 학생이 있을 수 있음을 고려하시오.
+-- (학과별로 정렬되어 화면에 보여지게 만드시오.)
+CREATE VIEW VW_지도면담(학생이름, 학과이름, 지도교수이름)
+AS
+    SELECT STUDENT_NAME, DEPARTMENT_NAME, NVL(PROFESSOR_NAME,'지도교수없음')
+    FROM TB_STUDENT S, TB_DEPARTMENT D, TB_PROFESSOR P
+    --LEFT JOIN TB_DEPARTMENT USING (DEPARTMENT_NO) 
+    --LEFT JOIN TB_PROFESSOR ON(PROFESSOR_NO = COACH_PROFESSOR_NO)
+    -- * 여기서 ANSI 구문으로 작성하기 힘든 이유 ? 
+    WHERE  S.DEPARTMENT_NO = D.DEPARTMENT_NO
+    AND P.PROFESSOR_NO = S.COACH_PROFESSOR_NO(+)
+    --AND COACH_PROFESSOR_NO IN ('지도교수없음')
+    ORDER BY DEPARTMENT_NAME
+    --GROUP BY D.DEPARTMENT_NO, STUDENT_NAME, DEPARTMENT_NAME, PROFESSOR_NAME
+;
+
+SELECT * FROM VW_지도면담;
+
+-- 》》》》》 Ex11) 모든 학과의 학과별 학생 수를 확인할 수 있도록 적절한 VIEW를 작성해보자.
+-- TODO 0명도 아니고 1명인 과는 왜 아우터조인에 포함되지 않는가 ?? : 체육학과
+CREATE VIEW VW_학과별학생수(학과이름, 학생수)
+AS 
+    SELECT DEPARTMENT_NAME, COUNT(*) CNT
+    FROM TB_STUDENT S, TB_DEPARTMENT D
+    WHERE  S.DEPARTMENT_NO(+) = D.DEPARTMENT_NO
+    GROUP BY D.DEPARTMENT_NO, DEPARTMENT_NAME
+    ORDER BY CNT DESC
+;
+
+-- 》》》》》 Ex12) 위에서 생성한 학생일반정보 VIEW를 통해서 학번이 A213046인 학생의 이름을 본인 이름으로 변경 해봅시다 
+UPDATE VW_학생일반정보
+SET 학생이름 = '미미'
+WHERE 학번 = 'A213046';
+
+SELECT * FROM VW_학생일반정보 WHERE 학번 = 'A213046';
+SELECT * FROM TB_STUDENT WHERE STUDENT_NO = 'A213046';
+
+-- 》》》》》 Ex13) 12번에서와 같이 VIEW를 통해서 데이터가 변경될 수 있는 상황을 막으려면 VIEW를 어떻게 생성해야 하는지 작성하시오
+-- WITH READ ONLY 기재 시 SELECT만 가능
+CREATE OR REPLACE VIEW VW_학생일반정보 (학번, 학생이름, 주소)
+AS ( SELECT STUDENT_NO, STUDENT_NAME, STUDENT_ADDRESS
+    FROM TB_STUDENT )
+WITH READ ONLY
+;
+/*  ========== SYSTEM (관리자) 계정에서 실행 ==========
+-- HR계정의 JOBS테이블의 조회 권한을 JUNGANG에 부여
+GRANT SELECT ON HR.JOBS TO JUNGANG;
+-- HR계정의 테이블 권한을 조회
+SELECT * FROM DBA_TAB_PRIVS WHERE OWNER = 'HR';
+-- 시노님(동의어/별칭)을 생성할 수 있는 권한을 부여
+GRANT CREATE SYNONYM TO JUNGANG;
+-- 계정의 권한을 조회
+SELECT * FROM DBA_SYS_PRIVS WHERE GRANTEE = 'JUNGANG';
+-- 권한 회수
+REVOKE SELECT ON HR.JOBS FROM JUNGANG;
+REVOKE CREATE SYNONYM FROM JUNGANG;
+*/
+/*  ========== JUNGANG (사용자) 계정에서 작성했던 내용 ==========
+SELECT * FROM HR.JOBS;
+*/
+-- HR계정의 JOBS테이블의 조회 권한을 JUNGANG에 부여
+
+-- 》》》》》 Ex14) SYNONYM
+-- 관리자로부터 HR 계정의 JOBS 테이블 조회 권한을 받아야 조회가 가능하다.
+SELECT * FROM HR.JOBS;
+
+-- 시노님 생성하기 (HR.JOBS의 별칭으로 JOB 생성)
+-- 관리자로부터 시노님(동의어/별칭)을 생성할 수 있는 권한을 받아야 생성이 가능하다.
+CREATE OR REPLACE SYNONYM JOBS FOR HR.JOBS;
+
+-- 시노님으로 조회
+SELECT * FROM JOBS;
+
+-- 시노님 삭제
+DROP SYNONYM JOBS;      -- TODO 삭제는 권한이 없어도 가능해..??
+
+-- 》》》》》 Ex15) SEQUENCE
+-- 10씩 증가하는 시퀀스를 생성
+CREATE SEQUENCE SEQ_TB_CLASS_TYPE_NO
+START WITH 10
+INCREMENT BY 10
+--MINVALUE 10
+--MAXVALUE 40
+;
+DROP SEQUENCE SEQ_TB_CLASS_TYPE_NO;
+
+-- NEXTVAL 이후 CURRVAL 사용 가능 
+-- 값을 증가시킨 후 반환
+SELECT SEQ_TB_CLASS_TYPE_NO.NEXTVAL FROM DUAL;
+SELECT SEQ_TB_CLASS_TYPE_NO.CURRVAL FROM DUAL;
+
+SELECT * FROM TB_CLASS_TYPE; 
+SELECT SEQ_TB_CLASS_TYPE_NO.NEXTVAL, CLASS_TYPE_NAME  FROM TB_CLASS_TYPE; 
+SELECT CLASS_TYPE FROM TB_CLASS GROUP BY CLASS_TYPE;
+
+SELECT SEQ_TB_CLASS_TYPE_NO.NEXTVAL, CLASS_TYPE         
+FROM (SELECT CLASS_TYPE FROM TB_CLASS GROUP BY CLASS_TYPE);
+
+-- 시퀀스를 이용해서 일괄적으로 삽입.      
+/*
+    INSERT INTO 테이블
+        서브쿼리
+        
+    서브쿼리의 조회결과집합을 테이블에 삽입
+*/
+INSERT INTO TB_CLASS_TYPE 
+    SELECT CLASS_TYPE, SEQ_TB_CLASS_TYPE_NO.NEXTVAL 
+    FROM (SELECT CLASS_TYPE FROM TB_CLASS GROUP BY CLASS_TYPE);
+    
+SELECT * FROM TB_CLASS_TYPE;
+
+-- ***** 테이블에서 컬럼 삭제
+ALTER TABLE TB_CLASS_TYPE DROP COLUMN CLASS_TYPE_NO;
+
+-- ***** 테이블의 필드 순서 변경
+-- ALTER TABLE 테이블명 CHANGE COLUMN 변경전 필드명 변경후 필드명 varchar(255) NULL AFTER 기준 필드명; 

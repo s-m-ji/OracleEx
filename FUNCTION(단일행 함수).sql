@@ -171,10 +171,3 @@ select replace('강남구 서울시 강남구 이화여대길 강남구', '강남구', '서대문구') f
 select replace(email, '@jungang.com' ,'') from emp;
 update emp set email = replace(email, '@jungang.com' ,'');
 select * from emp;
-
-
-
-
-
-
-

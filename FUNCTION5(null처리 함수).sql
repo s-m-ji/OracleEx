@@ -62,7 +62,7 @@ select to_char(sysdate ,'yyyy') - ('20'||substr('1111294045862',1,2))+1 나이 fro
     select '나이는 ' || (to_char(sysdate, 'yyyy') - ('19'||substr('9511294045862',1,2))+1) || '살 입니다.' 나이 from dual;
 
 /*
-    3) nullif(비교대산1, 비교대상2)
+    3) nullif(비교대상1, 비교대상2)
     - 두 개의 값이 동일하면 null을 반환
     - 두 개의 값이 동일하지 않으면 비교대상1을 반환
 */
