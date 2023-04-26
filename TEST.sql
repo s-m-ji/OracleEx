@@ -1,43 +1,122 @@
--- 04/11(화)
-select abs(-3) from dual; -- n의 절대값 반환
-select ceil(10.22) from dual; -- n과 같거나 가장 큰 정수 반환
-select floor(10.22) from dual; -- n보다 작거나 가능 큰 정수 반환
-select round(10.222,1) from dual; -- n을 소수점 기준(i+1)번째에서 반올림한 결과 반환
-select trunc(2.111111,3) from dual; -- n1을 소수점 기준 n2자리에서 잘라낸 결과 반환
-select power(2,3) from dual; -- n2를 n1제곱한 결과를 반환 (n2가 음수면 n1은 반드시 정수)
-select sqrt(2) from dual; -- n의 제곱근 반환
-select mod(3,2) from dual; -- n2를 n1으로 나눈 나머지 값을 반환
-select remainder(3,1) from dual; -- n2를 n1으로 나눈 나머지 값을 반환
-select exp(2) from dual;
-select ln(2) from dual;
-select log(10,100) from dual;
-select initcap('hELLO wORLD') from dual;
-select lower('hELLO wORLD') from dual;
-select upper('hELLO wORLD') from dual;
-select concat('얘', '미뇽앙') from dual;
-select substr('어떨것같니',3,1) from dual;
-select substrb('어떨것같니',3,1) from dual;
-select ltrim('이런 뮝췽날들잉', '이런') from dual;
-select rtrim('네 하루강 됭다묭말양', '말양') from dual;
-select rpad('너였다면', 15, '*') from dual;
-select lpad('어떨것같아', 15, '*') from dual;
-select replace('이런미친날들이','미친','뮝췽') from dual;
-select translate('이런 미친 미날 미들 미이','미친','뮝췽') from dual;
-select instr('네 하루가 되면 말야','야', -1, 1) from dual;
-select length('너였다면') from dual; -- 4 출력
-select lengthb('너였다면') from dual; -- 8 출력
-select sysdate from dual;
-select systimestamp from dual;
-select add_months(sysdate, 3) from dual;
-select months_between(add_months(sysdate,3), sysdate) from dual;
-select last_day(sysdate) from dual;
-select round(sysdate, 'month') from dual;
-select trunc(sysdate, 'month') from dual;
-select next_day(sysdate, '금요일') from dual;
-select to_char(sysdate, 'yyyy-mm-dd') from dual;
-select to_number('123456') from dual;
-select to_date('20230411','yyyy-mm-dd') from dual;
-select to_timestamp('20230411' ,'yyyy-mm-dd') from dual;
 
+CREATE TABLE BOOK (
+    NO NUMBER PRIMARY KEY
+    , TITLE VARCHAR(20) NOT NULL
+    , PUB_DAY DATE DEFAULT SYSDATE
+);
+SELECT * FROM BOOK ORDER BY NO;
 
+ALTER TABLE BOOK ADD AUTHOR VARCHAR(20);
+ALTER TABLE BOOK ADD PUBLISHER VARCHAR(20);
+ALTER TABLE BOOK ADD PRICE NUMBER;
+
+INSERT INTO BOOK (NO, TITLE, AUTHOR, PUBLISHER, PRICE, PUB_DAY)
+    VALUES (1, 'JDBC', '아이유', '중앙', '4000', '99/08/08');
+INSERT INTO BOOK (NO, TITLE, AUTHOR, PUBLISHER, PRICE, PUB_DAY)
+    VALUES (2, '7년의 밤', '정유정', '은행나무', '8000', '11/03/23');
+INSERT INTO BOOK (NO, TITLE, AUTHOR, PUBLISHER, PRICE, PUB_DAY)
+    VALUES (3, '해리포터', '조앤롤링', '문학수첩', '3000', '07/11/15');
+INSERT INTO BOOK (NO, TITLE, AUTHOR, PUBLISHER, PRICE, PUB_DAY)
+    VALUES (4, '국화옆에서', '서정주', '민음사', '4000', '01/08/16');
+INSERT INTO BOOK (NO, TITLE, AUTHOR, PUBLISHER, PRICE, PUB_DAY)
+    VALUES (5, '자바', '홍길동', '중앙', '5000', '21/04/09');
+    
+INSERT INTO BOOK (NO, TITLE, AUTHOR, PUBLISHER, PRICE, PUB_DAY)
+    VALUES (6, '자바2', '홍길동2', '중앙2', '5000', '');
+    
+    INSERT INTO BOOK (NO, TITLE, AUTHOR, PUBLISHER, PRICE, PUB_DAY)
+    VALUES (7, '자바3', '홍길동3', '중앙3', '5000', DEFAULT);
+    
+    
+ALTER TABLE BOOK ADD CONSTRAINT BOOK_PUBLISHER_FK
+                        FOREIGN KEY (PUBLISHER) REFERENCES PUBLISHER(PUBLISHER);    
+    
+GRANT CONNECT, RESOURCE, CREATE VIEW TO TEST;
+
+-- 문항1)
+SELECT * 
+FROM EMPLOYEE
+WHERE EMP_NAME LIKE '%하%';
+
+-- 문항2)
+-- 2780000
+SELECT EMP_NAME 이름, SALARY 급여
+FROM EMPLOYEE
+WHERE SALARY < (SELECT SALARY
+                FROM EMPLOYEE
+                WHERE EMP_NAME = '차태연');
+-- 문항3)                               
+-- 'FM9.00' 
+SELECT DEPT_TITLE 부서명
+        , TO_CHAR(ROUND(AVG(SALARY),1),'FM999,999,999.0') 평균급여
+FROM DEPARTMENT
+LEFT JOIN EMPLOYEE ON (DEPT_CODE = DEPT_ID)
+GROUP BY DEPT_TITLE
+;
+
+SELECT DEPT_TITLE 부서명, ROUND(AVG(SALARY),1) 평균급여
+FROM EMPLOYEE
+RIGHT JOIN DEPARTMENT ON (DEPT_CODE = DEPT_ID)
+--FROM DEPARTMENT D, EMPLOYEE E
+--WHERE DEPT_CODE = DEPT_ID
+GROUP BY DEPT_TITLE
+;
+
+-- 문항4)
+SELECT EMP_ID 사원번호, EMP_NAME 사원명, SALARY 급여
+FROM EMPLOYEE
+WHERE ROWNUM <= 5
+ORDER BY SALARY DESC;
+
+SELECT * FROM
+    (SELECT EMP_ID 사원번호, EMP_NAME 사원명, SALARY 급여
+    FROM EMPLOYEE
+    ORDER BY SALARY DESC)
+WHERE ROWNUM <= 5;
+
+-- 문항5)
+SELECT EMP_NAME 사원명, EXTRACT(YEAR FROM HIRE_DATE) 입사년도, JOB_NAME 직급명
+FROM EMPLOYEE
+JOIN JOB USING(JOB_CODE)
+WHERE EXTRACT(YEAR FROM HIRE_DATE) >= 2015 
+;
+
+-- 문항6)
+SELECT NATIONAL_NAME 국가명, LOCAL_NAME 지역명, DEPT_TITLE 부서명, EMP_NAME 사원명
+FROM NATIONAL N, LOCATION L, DEPARTMENT D, EMPLOYEE E
+WHERE N.NATIONAL_CODE = L.NATIONAL_CODE(+)
+AND L.LOCAL_CODE = D.LOCATION_ID(+)
+AND D.DEPT_ID = E.DEPT_CODE(+)
+AND NATIONAL_NAME IN ('한국','일본')
+ORDER BY NATIONAL_NAME DESC
+;
+SELECT NATIONAL_NAME 국가명, LOCAL_NAME 지역명, DEPT_TITLE 부서명, EMP_NAME 사원명
+FROM NATIONAL N, LOCATION L, DEPARTMENT D, EMPLOYEE E
+WHERE N.NATIONAL_CODE = L.NATIONAL_CODE
+AND L.LOCAL_CODE = D.LOCATION_ID
+AND D.DEPT_ID = E.DEPT_CODE
+AND NATIONAL_NAME IN ('한국','일본')
+ORDER BY NATIONAL_NAME
+;
+
+-- 문항7)
+CREATE VIEW VW_EMP_INFO(사원이름, 성별, 부서명, 직급명, 나이)
+AS 
+SELECT EMP_NAME 
+        , DECODE(SUBSTR(EMP_NO,8,1),
+                1,'남자', 2,'여자', 3,'남자', 4,'여자', '확인불가')
+        , NVL(DEPT_TITLE, '부서코드 없음')
+        , JOB_NAME
+        , TO_CHAR(SYSDATE, 'YYYY') - ( CASE WHEN SUBSTR(EMP_NO,8,1) IN ('1','2')
+                                                THEN '19' || SUBSTR(EMP_NO,1,2)
+                                                WHEN SUBSTR(EMP_NO,8,1) IN ('3','4')
+                                                THEN '20' || SUBSTR(EMP_NO,1,2)
+                                                ELSE ' ' END ) +1
+FROM EMPLOYEE
+LEFT JOIN DEPARTMENT ON (DEPT_CODE = DEPT_ID)
+JOIN JOB USING (JOB_CODE)
+ORDER BY DEPT_CODE, JOB_CODE DESC
+;
+
+SELECT * FROM VW_EMP_INFO;
 

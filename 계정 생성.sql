@@ -13,7 +13,7 @@ conn jungang/1234;
 select * from dba_sys_privs where grantee = 'JUNGANG'; -- 대문자로 작성해야함
 
 -- 사용자 계정에 권한 부여
-grant create session to jungang;
+GRANT CREATE SESSION TO jungang;
 -- 계정에 접속은 되지만 테이블 생성 등등 다른 작업은 할 수 없음
 
 -- 롤(ROLE) : 하나 이상의 권한으로 이루어진 집합체

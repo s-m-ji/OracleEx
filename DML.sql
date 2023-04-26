@@ -1,5 +1,6 @@
 /*
-<DML(data manipulation language)>
+(DCL : DATA CONTROL LANGUAGE) 
+<DML(DATA MANIPULATION LANGUAGE)>
     데이터 조작 언어로 테이블에 값을 삽입(insert) 수정(update) 삭제(delete)하는 구문이다.
 
     <insert>
@@ -515,7 +516,6 @@ AND DEPARTMENT_NAME = '의학과'
 AND TERM_NO = '200501'
 AND CLASS_NAME = '피부생리학'
 ;
-
 UPDATE TB_GRADE
 SET POINT = '3.5'
 WHERE TERM_NO = '200501'
@@ -529,3 +529,74 @@ AND CLASS_NAME = (SELECT CLASS_NAME
                     WHERE CLASS_NAME = '피부생리학')
 ;
 ROLLBACK;
+
+SELECT * FROM TB_GRADE
+WHERE STUDENT_NO = (SELECT STUDENT_NO 
+                    FROM TB_STUDENT 
+                    JOIN TB_DEPARTMENT USING(DEPARTMENT_NO)
+                    WHERE STUDENT_NAME ='김명훈'
+                    AND DEPARTMENT_NAME ='의학과')
+AND TERM_NO = '200501'
+AND CLASS_NO = (SELECT CLASS_NO
+                FROM TB_CLASS
+                WHERE CLASS_NAME = '피부생리학')
+;
+UPDATE TB_GRADE
+SET POINT = '3.5'
+WHERE STUDENT_NO = (SELECT STUDENT_NO 
+                    FROM TB_STUDENT 
+                    JOIN TB_DEPARTMENT USING(DEPARTMENT_NO)
+                    WHERE STUDENT_NAME ='김명훈'
+                    AND DEPARTMENT_NAME ='의학과')
+AND TERM_NO = '200501'
+AND CLASS_NO = (SELECT CLASS_NO
+                FROM TB_CLASS
+                WHERE CLASS_NAME = '피부생리학')
+;
+
+SELECT * FROM TB_GRADE
+WHERE ( TERM_NO, STUDENT_NO, CLASS_NO ) =
+            (SELECT '200501', STUDENT_NO, CLASS_NO 
+            FROM TB_STUDENT
+            JOIN TB_DEPARTMENT USING(DEPARTMENT_NO)
+            JOIN TB_CLASS USING (DEPARTMENT_NO)
+            WHERE STUDENT_NAME = '김명훈'
+            AND DEPARTMENT_NAME = '의학과'
+            AND CLASS_NAME = '피부생리학')
+;            
+
+-- Ex8) 성적 테이블에서 휴학생들의 성적항목을 제거하시오
+SELECT * FROM TB_GRADE
+WHERE STUDENT_NO IN (SELECT STUDENT_NO
+
+                    FROM TB_STUDENT
+                    WHERE ABSENCE_YN = 'Y')
+;
+DELETE FROM TB_GRADE 
+WHERE STUDENT_NO IN (SELECT STUDENT_NO
+                    FROM TB_STUDENT
+                    WHERE ABSENCE_YN = 'Y')
+;
+--> 여기서 DELETE하면 휴학생들의 행을 다 삭제하게되므로,
+-- POINT 컬럼의 데이터를 삭제하고싶다면 UPDATE로 값을 수정하는 방법이 있다. NULL 또는 0으로 대체 
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+

@@ -2,13 +2,13 @@
     <제약 조건>
     데이터의 무결성을 지키기 위해 입력값을 제한
     
-    not null : null 입력 제한
-    unique : 중복되지 않는 값
-    default : 디폴트 값을 부여
-    check : 체크 로직에 만족하는 값
+    NOT NULL : NULL 입력 제한
+    UNIQUE : 중복되지 않는 값
+    DEFAULT : 디폴트 값을 부여
+    CHECK : 체크 로직에 만족하는 값
     
-    primary key : 기본키(not null + unique) 
-    foreign key : 외래키(두 테이블의 연관관계에 따라 데이터 입력 또는 삭제 시 제한 받음)
+    PRIMARY KEY : 기본키(NOT NULL + UNIQUE) 
+    FOREIGN KEY : 외래키(두 테이블의 연관관계에 따라 데이터 입력 또는 삭제 시 제한 받음)
     
     
     <primary key (기본키) 제약조건>

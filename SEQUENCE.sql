@@ -1,14 +1,14 @@
 /*
-    <SEQUENCE>
-        정수값을 순차적으로 생성하는 역할을 하는 객체
-        [표현법]
-        CREATE SEQUENCE 시퀀스명
-            [START WITH 숫자] : 처음 발생시킬 시작 값, 기본값 1
-            [INCREAMENT BY 숫자] : 다음 값에 대한 증가치, 기본값 1
-            [MAXVALUE 숫자] : 발생시킬 최대값 10의 27승 -1
-            [MINVALUE 숫자] : 발생시킬 최소값 -10의 26승
-            [CYCLE | NOCYCLE] : 시퀀스가 최대값에 도달할 경우 START WITH으로 돌아감
-            [CACHE 바이트크기 | NOCACHE]; : 메모리 상에서 시퀀스 값 관리(기본값 20 바이트)
+<SEQUENCE>
+    정수값을 순차적으로 생성하는 역할을 하는 객체
+    [표현법]
+    CREATE SEQUENCE 시퀀스명
+        [START WITH 숫자] : 처음 발생시킬 시작 값, 기본값 1
+        [INCREAMENT BY 숫자] : 다음 값에 대한 증가치, 기본값 1
+        [MAXVALUE 숫자] : 발생시킬 최대값 10의 27승 -1
+        [MINVALUE 숫자] : 발생시킬 최소값 -10의 26승
+        [CYCLE | NOCYCLE] : 시퀀스가 최대값에 도달할 경우 START WITH으로 돌아감
+        [CACHE 바이트크기 | NOCACHE]; : 메모리 상에서 시퀀스 값 관리(기본값 20 바이트)
 */
 CREATE SEQUENCE SEQ_EMP_COPY_ID 
 START WITH 100;
