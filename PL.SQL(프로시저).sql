@@ -5,7 +5,7 @@ AS SELECT * FROM EMP;
 -- EMP_DUP 테이블 조회
 SELECT * FROM EMP_DUP; 
 
-/*
+/* 
     <PROCEDURE>
         PL/SQL 문을 저장하는 객체이다.
         필요할 때마다 복잡한 구문을 다시 입력할 필요 없이 간단하게 호출해서 실행 결과를 얻을 수 있다.
