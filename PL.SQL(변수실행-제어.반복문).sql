@@ -339,7 +339,7 @@ BEGIN
     END LOOP;
 END;
 /
-
+-- 2 ~ 9단 모두 출력
 DECLARE     
     i NUMBER := 2;
     num NUMBER := 1;
