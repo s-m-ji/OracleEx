@@ -124,9 +124,48 @@ select
 from
   dual
 connect by level <= 100;
-
-
 select count(*) from board;
-
-
 select * from ( select b.*, rownum rn from ( select * from board order by num desc) b ) where rn between 1 and 1
+;
+create ;
+create table myfile (
+    idx number primary key          -- 시퀀스
+    , name varchar2(50) not null    -- form 전달
+    , title varchar2(200) not null  -- form 전달
+    , cate varchar2(30)             -- form 전달
+    , ofile varchar2(100) not null 
+    , sfile varchar2(100) not null 
+    , postdate date default sysdate not null
+);
+
+select * from myfile;
+select * from myfile order by idx desc;
+select count(*) from myfile order by idx desc;
+COMMENT ON TABLE myfile IS '파일 업로드' ;
+COMMENT ON COLUMN myfile.postdate IS '등록한 날짜';
+
+insert into myfile values (seq_myfile_num.nextval, '작성자1', '제목1' ,'카테고리1' ,'원본파일명', '수정파일명', sysdate);
+
+delete myfile;
+drop table myfile;
+drop sequence seq_myfile_num;
+create sequence seq_myfile_num;
+
+select * from ( select rownum rn, t.* from ( select idx, name, title, cate, ofile, sfile, postdate from myfile order by idx desc ) t ) where rn between 1 and 10;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
