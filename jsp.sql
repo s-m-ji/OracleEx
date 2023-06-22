@@ -144,7 +144,8 @@ select count(*) from myfile order by idx desc;
 COMMENT ON TABLE myfile IS '파일 업로드' ;
 COMMENT ON COLUMN myfile.postdate IS '등록한 날짜';
 
-insert into myfile values (seq_myfile_num.nextval, '작성자1', '제목1' ,'카테고리1' ,'원본파일명', '수정파일명', sysdate);
+insert into myfile values (
+seq_myfile_num.nextval, '작성자1', '제목1' ,'카테고리1' ,'원본파일명', '수정파일명', sysdate);
 
 delete myfile;
 drop table myfile;
@@ -153,9 +154,30 @@ create sequence seq_myfile_num;
 
 select * from ( select rownum rn, t.* from ( select idx, name, title, cate, ofile, sfile, postdate from myfile order by idx desc ) t ) where rn between 1 and 10;
 
+create sequence seq_mvcboard_num;
+;
+SELECT * FROM mvcboard ORDER BY idx DESC ;
 
+create table mvcboard (
+    idx number primary key,
+    name varchar2(50) not null,
+    title varchar2(200) not null,
+    content varchar2(2000) not null,
+    postdate date default sysdate not null,
+    ofile varchar2(200),
+    sfile varchar2(200),
+    downcount number default 0 not null,
+    pass varchar2(50) not null,
+    visitcount number default 0 not null
+);
 
+insert into mvcboard values (seq_mvcboard_num.nextval,
+'작성자 이름3', '제목3' ,'내용3', sysdate ,'원본 파일명3', '저장된 파일명3', 0, '1234', 0);
 
+SELECT COUNT(*) FROM mvcboard ORDER BY idx DESC;
+SELECT * FROM mvcboard ORDER BY idx DESC;
+
+SELECT * FROM mvcboard WHERE idx = 3;
 
 
 
