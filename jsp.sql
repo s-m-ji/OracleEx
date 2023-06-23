@@ -179,9 +179,9 @@ SELECT * FROM mvcboard ORDER BY idx DESC;
 
 SELECT * FROM mvcboard WHERE idx = 3;
 
+SELECT COUNT(*) FROM mvcboard WHERE title LIKE '%力格%';
 
-
-
+update mvcboard set name = '累己磊3', title = '力格3', content = '郴侩3' where idx = '3';
 
 
 
