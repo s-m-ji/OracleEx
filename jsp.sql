@@ -171,6 +171,35 @@ create table mvcboard (
     visitcount number default 0 not null
 );
 
+insert into mvcboard
+select
+  seq_mvcboard_num.nextval,
+  '작성자' || level,
+  '제목' || level,
+  '내용' || level,
+  sysdate,
+  '',
+  '',
+  0,
+  '1234',
+  0
+from
+  dual
+connect by level <= 100;
+commit;
+
+comment on table mvcboard is 'MVC게시판';
+comment on column mvcboard.idx is '일련번호. 기본키';
+comment on column mvcboard.name is '작성자 이름';
+comment on column mvcboard.title is '제목';
+comment on column mvcboard.content is '내용';
+comment on column mvcboard.postdate is '작성일';
+comment on column mvcboard.ofile is '원본 파일명';
+comment on column mvcboard.sfile is '저장된 파일명';
+comment on column mvcboard.downcount is '다운로드 횟수';
+comment on column mvcboard.pass is '비밀번호';
+comment on column mvcboard.visitcount is '조회수';
+
 insert into mvcboard values (seq_mvcboard_num.nextval,
 '작성자 이름3', '제목3' ,'내용3', sysdate ,'원본 파일명3', '저장된 파일명3', 0, '1234', 0);
 
@@ -181,7 +210,7 @@ SELECT * FROM mvcboard WHERE idx = 3;
 
 SELECT COUNT(*) FROM mvcboard WHERE title LIKE '%제목%';
 
-update mvcboard set name = '작성자3', title = '제목3', content = '내용3' where idx = '3';
+update mvcboard set name = '작성자3', title = '제목3', content = '내용3', ofile = 'test', sfile = 'new_test' where idx = '111';
 
 
 
