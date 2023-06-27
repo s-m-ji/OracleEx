@@ -14,6 +14,7 @@ create table board (
     , postdate date default sysdate not null
     , visitcount number(6)
 );
+
 -- board 외래키 설정
 alter table board
     add constraint board_mem_fk foreign key (id)
@@ -212,11 +213,80 @@ SELECT COUNT(*) FROM mvcboard WHERE title LIKE '%제목%';
 
 update mvcboard set name = '작성자3', title = '제목3', content = '내용3', ofile = 'test', sfile = 'new_test' where idx = '111';
 
+update mvcboard set sfile = '파일명_20230626_10499736.png' where idx = 114;
 
+-- libBoard 테이블 생성
+create table libBoard (
+    idx 	number 			primary key
+    , title	varchar2(200)		not null	
+    , writer	varchar2(100)		not null	
+    , publisher	varchar2(100)		not null	
+    , post_date	date	default sysdate	not null	
+    , rent_yn	char	default 'N'	not null	
+    , rent_date	date	default sysdate		
+    , return_exp_date	date	default sysdate + 14		
+    , return_date	date	default sysdate		
+    , ebook_file	varchar2(100)			
+    , rent_count	number 	default 0	not null	
+    , review	varchar2(500)			
+);
 
+insert into libBoard
+select
+  seq_libBoard_idx.nextval, '책 ' || level, '작가 ' || level, '출판사 ' || level,
+  sysdate, 'N', sysdate, sysdate+7, '', '', 0, '' from dual
+connect by level <= 100; 
+commit;
 
+INSERT INTO libBoard (idx, title, writer, publisher, rent_yn, rent_date, return_date, return_exp_date, rent_count)
+    VALUES (seq_libBoard_idx.nextval, '책', '작가', '출판사', default, sysdate, '', sysdate+7, default);
 
+to_char(postdate, 'yyyy-mm-dd')
 
+SELECT idx, title, writer, publisher, rent_yn, to_char(rent_date, 'yyyy-mm-dd') as "RENT_DATE"
+                , return_date, to_char(return_exp_date, 'yyyy-mm-dd') as "RETURN_EXP_DATE", rent_count FROM libBoard ORDER BY idx DESC;
 
+update libBoard set rent_yn = 'Y' where idx = 2;
+create sequence seq_libBoard_idx
+    increment by  1
+    start with 1
+    minvalue 1
+    nomaxvalue 
+    nocycle 
+    nocache
+;
+INSERT INTO mvcboard (idx, name, title, content, ofile, sfile, pass) VALUES (seq_mvcboard_num.nextval, '1', '2', '3', '4', '5', '6');
 
+UPDATE mvcboard set visitcount = visitcount + 1 WHERE idx = 114;
 
+ALTER TABLE member ADD grade CHAR DEFAULT 'B' NOT NULL;
+
+ALTER TABLE member RENAME COLUMN admin TO adminyn;
+
+select * from member;
+
+update member set adminyn = 'Y' where id = 'test6';
+update member set id = 'admin01' where name = '관리자1';
+delete member where name = '관리자1';
+SELECT * FROM libBoard order by idx desc;
+
+SELECT rent_yn FROM libBoard WHERE idx = 3;
+
+delete from libboard where idx in ('102');
+delete from libboard where idx in ('102');
+delete from libboard where idx in (102);
+
+conn jsp/1234
+create table 대여 as select * from library.대여;
+
+GRANT SELECT, INSERT ON library.대여 TO jsp;
+
+create table 대여 (
+    대여번호 VARCHAR2(10 BYTE) not null,
+    아이디 VARCHAR2(20 BYTE),
+    ehtjqjsgh 
+);
+
+alter table libboard modify rent_count null;
+
+insert into libboard (idx, title) values (SEQ_libboard_idx.NEXTVAL, '아무튼, 피아노');
