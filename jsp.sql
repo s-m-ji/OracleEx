@@ -234,9 +234,11 @@ create table libBoard (
 insert into libBoard
 select
   seq_libBoard_idx.nextval, '책 ' || level, '작가 ' || level, '출판사 ' || level,
-  sysdate, 'N', sysdate, sysdate+7, '', '', 0, '' from dual
+  sysdate, 'N', sysdate, sysdate+14, '', 0, '', '', '', '' from dual
 connect by level <= 100; 
 commit;
+
+drop sequence seq_libBoard_idx;
 
 INSERT INTO libBoard (idx, title, writer, publisher, rent_yn, rent_date, return_date, return_exp_date, rent_count)
     VALUES (seq_libBoard_idx.nextval, '책', '작가', '출판사', default, sysdate, '', sysdate+7, default);
@@ -288,5 +290,56 @@ create table 대여 (
 );
 
 alter table libboard modify rent_count null;
+ALTER TABLE libboard ADD rent_no VARCHAR2(20);
+ALTER TABLE libboard DROP COLUMN eBook_file;
+
+select * from libboard;
 
 insert into libboard (idx, title) values (SEQ_libboard_idx.NEXTVAL, '아무튼, 피아노');
+
+insert into libboard (idx, title, writer, publisher, ofile, sfile values (SEQ_libboard_idx.NEXTVAL, '아무튼 외국어', '-', '-', '아무튼_외국어.png', '아무튼_외국어_20230628_102351723.png');
+
+create sequence seq_대여
+    increment by  1
+    start with 1
+    minvalue 1
+    nomaxvalue 
+    nocycle 
+    nocache
+;
+drop sequence seq_대여;
+-- rentBook 메소드 쿼리 1. 
+select 'R'||lpad(seq_대여.nextval,5,0) from dual; 
+-- rentBook 메소드 쿼리 2.
+update libboard set rent_no = 'R0001' where idx = 3 and (rent_no is null or rent_no = '');
+-- rentBook 메소드 쿼리 3.
+select * from 대여;
+insert into 대여 values ( 'R0001', '아이디', '3', 'Y', sysdate, null, sysdate+14, null);
+
+select * from libboard;
+
+delete libboard;
+
+SELECT b.idx, b.title, d.대여여부, b.writer, d.아이디, to_char(대여일, 'yy/mm/dd/') 대여일, to_char(반납가능일, 'yy/mm/dd/') 반납가능일, 반납일, sfile, ofile, d.대여번호 FROM libBoard b, 대여 d WHERE b.rent_no = d.대여번호(+) and b.idx = 126;
+
+select d.대여번호 from libBoard b, 대여 d
+WHERE b.idx = d.도서번호(+) and b.idx = 126;
+
+select d.대여번호 from libBoard b, 대여 d WHERE b.idx(+) = d.도서번호 and b.idx = 118;
+update libboard set rent_yn = 'N', rent_no = '' where rent_no = 'R00006' and rent_no is not null;
+
+SELECT * FROM ( 
+    SELECT ROWNUM rn, lib.* FROM ( 
+        SELECT b.idx, b.title, b.writer, b.publisher, b.rent_yn 
+        FROM libboard b, 대여 d 
+        WHERE b.idx = d.도서번호
+        AND title LIKE '%책%' 
+        AND 'test' = d.아이디 
+        AND b.rent_yn = 'Y'
+        ORDER BY idx DESC 
+    ) lib 
+) WHERE rn BETWEEN 1 AND 10;
+
+SELECT * FROM ( SELECT ROWNUM rn, lib.* FROM ( SELECT b.idx, title, writer, publisher, rent_no, d.대여번호, d.대여여부, TO_DATE(to_char(반납가능일, 'yy/mm/dd'), 'YY/MM/DD') - TRUNC(SYSDATE) AS 잔여일, to_char(대여일, 'yy/mm/dd') 대여일, to_char(반납가능일, 'yy/mm/dd') 반납가능일, to_char(반납일, 'yy/mm/dd') 반납일 from libboard b, 대여 d WHERE b.idx = d.도서번호 ORDER BY idx DESC ) lib ) WHERE rn BETWEEN 1 AND 10;
+
+SELECT * FROM ( SELECT ROWNUM rn, lib.* FROM ( SELECT idx, title, writer, publisher, d.대여번호, d.대여여부,  TO_DATE(to_char(반납가능일, 'yy/mm/dd'), 'YY/MM/DD') - TRUNC(SYSDATE) AS 잔여일 to_char(대여일, 'yy-mm-dd') 대여일, to_char(반납가능일, 'yy-mm-dd') 반납가능일, to_char(반납일, 'yy-mm-dd') 반납일 FROM libboard b, 대여 d WHERE b.idx = d.도서번호 ORDER BY idx DESC ) lib ) WHERE rn BETWEEN 1 AND 10;
