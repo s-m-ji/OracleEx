@@ -290,8 +290,9 @@ create table ´ë¿© (
 );
 
 alter table libboard modify rent_count null;
-ALTER TABLE libboard ADD rent_no VARCHAR2(20);
+ALTER TABLE member ADD reserve_no VARCHAR2(20);
 ALTER TABLE libboard DROP COLUMN eBook_file;
+
 
 select * from libboard;
 
