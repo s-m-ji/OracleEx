@@ -30,7 +30,7 @@ create sequence seq_board_num
     nocache
 ;
 -- 더미데이터 입력
-insert into member (id, pass, name) values ('test','1234', '사용자');
+INSERT INTO MEMBER (ID, pass, NAME) VALUES ('test','1234', '사용자');
 insert into board (num, title, content, id, postdate, visitcount)
     values (seq_board_num.nextval, '나상현씨밴드입니다', '클럽투어 기대해주세요', 'test10',
 sysdate, 0);
