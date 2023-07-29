@@ -137,9 +137,12 @@ DELETE tbl_attach WHERE bno = 6;
 
 DELETE tbl_board WHERE bno = 187 CASCADE;
 
+SELECT T.* 
+    , uploadpath||uuid||'_'||filename savepath
+     , DECODE(filetype , 'I', uploadpath||'thum_'||uuid||'_'||filename, 'file') t_savepath
+ 			FROM tbl_attach T WHERE bno = 189 AND uuid = '5bdc5cde-1e9e-45d4-b728-0a19997d1b79';
 
-
-
+SELECT * from tbl_attach where bno = 193;
 
 
 
