@@ -38,12 +38,15 @@ select * from rec_category;
 delete rec_category;
 drop table rec_category;
 
-INSERT INTO rec_board (B_NO, nickName, title, C_NO)
+INSERT INTO rec_board (B_NO, nickName, title, intro, boomup, C_NO1, C_NO2)
 SELECT
   seq_rec_board_num.nextval,
   'ø¿¥√ππ∏‘¡∂ ' || level, 
   '∑πΩ√«« ' || level,
-  1
+  'º“∞≥ ' || level || '¿‘¥œ¥Ÿ.',
+  10,
+  1,
+  11
 FROM
   dual
 CONNECT BY level <= 100;
@@ -111,7 +114,7 @@ SELECT *
             WHERE rc.C_NO = rt.C_NO
             AND rt.B_NO = rm.B_NO
             AND rm.I_NO = ri.I_NO
-            AND I_NAME like '%12%'
+            ---AND I_NAME like '%12%'
         ORDER BY B_NO DESC
       ) t
     )
@@ -119,6 +122,33 @@ SELECT *
 
 drop table rec_board;
 drop table rec_category;
+
+SELECT *
+				FROM (
+				  SELECT t.*, ROWNUM rn
+				  FROM (
+				   
+				            
+				          SELECT rt.title, rt.regdate, rt.nickname, rt.intro, rt.boomup,
+                          CASE WHEN rt.regdate >= TRUNC(SYSDATE) - 3 THEN 'new' ELSE '' END AS newpost,
+                                    rc.C_NO1, rc.C_NO2
+				          	FROM rec_board rt, rec_category rc
+				          	 WHERE rc.C_NO1 = rt.C_NO1
+				          	  AND rc.C_NO2 = rt.C_NO2
+                                --AND rc.C_NO1 = 1 AND intro LIKE '%%'
+                            
+				        -- ORDER BY rt.regdate DESC
+                        ORDER BY rt.boomup DESC
+				  ) t
+				)
+				WHERE rn BETWEEN 1 AND 100;
+
+SELECT rt.title, rt.regdate, rt.nickname, rt.intro, rc.C_NO1, rc.C_NO2
+FROM rec_board rt, rec_category rc
+WHERE rc.C_NO1(+) = rt.C_NO1
+AND rc.C_NO2(+) = rt.C_NO2
+ORDER BY rt.B_NO DESC;
+
 
 --------------------------------------------------------------------------------
 
