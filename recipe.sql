@@ -1,3 +1,34 @@
+SELECT *
+				FROM (
+				  SELECT t.*, ROWNUM rn
+				  FROM (
+SELECT  ct.com_bno, ct.nickname, ct.com_title, ct.com_content, ct.replycnt,
+				          		CASE WHEN ct.regdate >= TRUNC(SYSDATE) - 3 THEN 'new' ELSE '' END AS newpost,
+				          		CASE
+        WHEN ct.regdate >= TRUNC(SYSDATE) - 1 THEN
+            CASE
+                WHEN (SYSDATE - ct.regdate) * 24 * 60 < 60 THEN 
+                    FLOOR((SYSDATE - ct.regdate) * 24 * 60) || '분 전'
+                ELSE
+                    CASE
+                        WHEN (SYSDATE - ct.regdate) * 24 < 24 THEN
+                            FLOOR((SYSDATE - ct.regdate) * 24) || '시간 전'
+                        ELSE
+                            TRUNC(SYSDATE - ct.regdate) || '일 전'
+                    END
+            END
+        WHEN ct.regdate >= TRUNC(SYSDATE) - 7 THEN
+            TRUNC(ROUND(SYSDATE - ct.regdate)) || '일 전'
+        ELSE
+            TO_CHAR(ct.regdate, 'YYYY/MM/DD')
+    END AS regdate
+				          	FROM com_board ct
+				          	 -- WHERE com_content LIKE '%' || #{sWord} || '%'
+                             
+                              ) t
+				)
+				WHERE rn BETWEEN 1 AND 20;
+
 -- 테스트용 테이블 생성 ( 제약조건 無 ) 
 CREATE TABLE rec_board_test (
     B_NO NUMBER,
@@ -35,6 +66,24 @@ minvalue 0
 MAXVALUE 1000
 NOCYCLE
 NOCACHE;
+
+CREATE SEQUENCE SEQ_REPLY
+START WITH 0
+INCREMENT BY 1
+minvalue 0
+MAXVALUE 1000
+NOCYCLE
+NOCACHE;
+
+CREATE SEQUENCE seq_gr_no
+START WITH 0
+INCREMENT BY 1
+minvalue 0
+MAXVALUE 1000
+NOCYCLE
+NOCACHE;
+
+
 
 INSERT INTO rec_category (C_NO, cateName)
 SELECT
@@ -226,6 +275,111 @@ AND rc.C_NO2(+) = rt.C_NO2
 ORDER BY rt.B_NO DESC;
 
 delete rec_category;
+
+SELECT *
+    FROM (
+      SELECT t.*, ROWNUM rn
+      FROM (
+             SELECT rt.title, rt.nickname, rt.intro, rt.b_no, rt.boomup, rt.viewcnt,
+                    CASE WHEN rt.regdate >= TRUNC(SYSDATE) - 3 THEN 'new' ELSE '' END AS newpost,
+                   CASE
+        WHEN rt.regdate >= TRUNC(SYSDATE) - 1 THEN
+          FLOOR((SYSDATE - rt.regdate) * 24 * 60) || '분 전'
+        WHEN rt.regdate >= TRUNC(SYSDATE) - 7 THEN
+          TRUNC(ROUND(SYSDATE - rt.regdate)) || '일 전'
+        ELSE
+          TO_CHAR(rt.regdate, 'YYYY/MM/DD')
+      END AS regdate,
+                            rc.C_NO1, rc.C_NO2, rc.catename1, rc.catename2 
+                FROM rec_board rt, rec_category rc
+                 WHERE rc.C_NO1 = rt.C_NO1
+                  AND rc.C_NO2 = rt.C_NO2
+                  ORDER BY rt.regdate DESC
+                  ) t
+    )
+    WHERE rn BETWEEN 1 AND 50;
+
+select * from rec_board order by b_no;
+
+select * from com_board;
+
+SELECT T.* 
+    , uploadpath||uuid||'_'||filename savepath
+     , DECODE(filetype , 'I', uploadpath||'thum_'||uuid||'_'||filename, 'file') t_savepath
+ 			FROM rec_file T WHERE FILETYPE = 'B' AND b_no = 2;
+--------------------------------------------------------------------------------
+-- view.jsp 업데이트
+alter table rec_board 
+add videoLink varchar2(3000);
+
+-- rec_board
+Insert into RECIPE.REC_BOARD (B_NO,TITLE,NICKNAME,REGDATE,UPDATEDATE,BOOMUP,INTRO,COOKTIP,VIEWCNT,STAR,C_NO1,C_NO2,MNO,REPLYCNT,VIDEOLINK) values (2,'냉동만두요리 만두버섯전골 만드는법 만두전골 만들기 버섯전골 레시피','그럴만두하지',to_date('23/08/07 14:39:08','RR/MM/DD hh24:MI:SS'),to_date('23/08/07 14:39:08','RR/MM/DD hh24:MI:SS'),0,'냉장고에 있는 재료를 생각하다가 오랫만에 깔끔한 국물의 만두버섯전골을 만들어 먹어야겠다 싶더군요','뜨거운물 말고 찬물을 넣으실꺼라면 만두는 물이 끓고나면 넣어주세요',0,0,1,2,1,0,'https://youtu.be/_TGhAtAqrLk')
+;
+ALTER TABLE rec_ingredients MODIFY i_power VARCHAR2(300); -- 데이터 타입을 먼저 변경해주세요
+ALTER TABLE rec_ingredients modify i_cook varchar2(300); -- 
+
+delete REC_INGREDIENTS;
+delete rec_material;
+
+Insert into RECIPE.REC_INGREDIENTS (I_NO,I_NAME,I_COOK,I_POWER,I_FRIENDFOOD,I_REPAIR) values (2,'배추','배추볶음/배추롤/소고기배추말이','변비/피로회복/피부미용','두부','배추를 반으로 잘라 흐르는 물에 씻는다.');
+Insert into RECIPE.REC_INGREDIENTS (I_NO,I_NAME,I_COOK,I_POWER,I_FRIENDFOOD,I_REPAIR) values (3,'팽이버섯','소불고기야채정식/팽이버섯말이/육우채소말이','성장발육/항암효과/콜레스테롤저하','육류','밑동을 잘라내고 흐르는 물에 씻는다.');
+Insert into RECIPE.REC_INGREDIENTS (I_NO,I_NAME,I_COOK,I_POWER,I_FRIENDFOOD,I_REPAIR) values (4,'양파','닭볶음탕/잡채/제육볶음','혈관질환/불면증/피로회복','육류','뿌리 부분은 잘라내고 대를 자른 부분에서부터 갈색의 마른 껍질을 벗긴 후 용도에 따라 썰어서 사용');
+Insert into RECIPE.REC_INGREDIENTS (I_NO,I_NAME,I_COOK,I_POWER,I_FRIENDFOOD,I_REPAIR) values (5,'청양고추','된장찌개/두부조림/닭볶음탕/콩나물국','다이어트/피부미용/스트레스해소','우유','손질하지 않은 것은 밀봉하여 냉장보관, 손질하거나 다진 것은 냉동보관한다.');
+Insert into RECIPE.REC_INGREDIENTS (I_NO,I_NAME,I_COOK,I_POWER,I_FRIENDFOOD,I_REPAIR) values (6,'대파','소고기무국/제육볶음/순두부찌개/어묵볶음','혈액순환/피로회복/면역력','미역','뿌리 부분은 잘라내고, 흰대와 줄기 부분을 분리한다.');
+Insert into RECIPE.REC_INGREDIENTS (I_NO,I_NAME,I_COOK,I_POWER,I_FRIENDFOOD,I_REPAIR) values (7,'물','모든음식','장기능 개선/노폐물 제거/피로회복','모든음식','생수의 경우 서늘하고 직사광선이 없는 곳에서 보관하고, 개봉후에는 냉장 보관한다.');
+Insert into RECIPE.REC_INGREDIENTS (I_NO,I_NAME,I_COOK,I_POWER,I_FRIENDFOOD,I_REPAIR) values (8,'떡국떡','떡국/떡만두국/만두전골','쫀득쫀득','국종류','잘라서 보관하거나 통으로 냉동보관한다.');
+
+Insert into RECIPE.REC_MATERIAL (M_NO,I_NO,MATERIALCNT,B_NO,I_NAME) values ('2','2','6장','2','배추');
+Insert into RECIPE.REC_MATERIAL (M_NO,I_NO,MATERIALCNT,B_NO,I_NAME) values (3,3,'1개',2,'팽이버섯');
+Insert into RECIPE.REC_MATERIAL (M_NO,I_NO,MATERIALCNT,B_NO,I_NAME) values (4,4,'1/2개',2,'양파');
+Insert into RECIPE.REC_MATERIAL (M_NO,I_NO,MATERIALCNT,B_NO,I_NAME) values (5,5,'1개',2,'청양고추');
+Insert into RECIPE.REC_MATERIAL (M_NO,I_NO,MATERIALCNT,B_NO,I_NAME) values (6,6,'1/3대',2,'대파');
+Insert into RECIPE.REC_MATERIAL (M_NO,I_NO,MATERIALCNT,B_NO,I_NAME) values (7,7,'4~5컵',2,'물');
+Insert into RECIPE.REC_MATERIAL (M_NO,I_NO,MATERIALCNT,B_NO,I_NAME) values (8,8,'1/2컵',2,'떡국떡');
+Insert into RECIPE.REC_MATERIAL (M_NO,I_NO,MATERIALCNT,B_NO,I_NAME) values (9,9,'1팩',2,'냉동만두');
+
+-- rec_step( 조리순서 테이블 )
+
+Insert into RECIPE.REC_STEP (S_NO,STEP_CONTENT,B_NO) values (2,'만두버섯전골에 들어갈 재료부터 손질해주세요 알배기배추는 작은사이즈를 사용하였답니다',2);
+Insert into RECIPE.REC_STEP (S_NO,STEP_CONTENT,B_NO) values (3,'손질한 야채는 전골냄비에 이쁘게 담아주시면 되요 알배기배추, 새송이버섯, 만가닥버섯 그리고 대파를 넣어주었고 샤브샤브용 고기는 미리 찬물에 담궈 핏물을 뺀 후 사용하였어요',2);
+Insert into RECIPE.REC_STEP (S_NO,STEP_CONTENT,B_NO) values (4,'냉동실에 보관중이던 냉동고기만두 5개와 김치만두 2개를 넣어주었답니다',2);
+Insert into RECIPE.REC_STEP (S_NO,STEP_CONTENT,B_NO) values (5,'전골류는 끓여내기전의 모습이 더욱 이쁜듯 하여 늘 사진을 미리 찍어놓는 편이예요',2);
+Insert into RECIPE.REC_STEP (S_NO,STEP_CONTENT,B_NO) values (6,'재료가 잠길정도의 물을 부어주시면 되는데 이때 물은 미리 끓여놓은 후 넣는걸 추천드려요 너무 오랜시간 끓이게 되면 만두가 터질 위험이 있거든요 ~',2);
+Insert into RECIPE.REC_STEP (S_NO,STEP_CONTENT,B_NO) values (7,'쯔유와 치킨스톡을 넣어 간을 해 준 후 보글보글 끓여줍니다',2);
+Insert into RECIPE.REC_STEP (S_NO,STEP_CONTENT,B_NO) values (8,'끓는물을 넣어 끓여낸지라 금방 끓기시작하는데요 끓기시작하고 4~ 5분정도 바글바글 끓여주세요 이때 올라오는 기름과 불순물은 최대한 제거해줍니다',2);
+Insert into RECIPE.REC_STEP (S_NO,STEP_CONTENT,B_NO) values (9,'마지막에 간을 본 후 어간장으로 추가간을 해주었어요 ~',2);
+Insert into RECIPE.REC_STEP (S_NO,STEP_CONTENT,B_NO) values (10,'깔끔한 스타일의 만두버섯전골 완성이예요 !',2);
+
+-- rec_file ( 파일 테이블 ) 
+
+Insert into RECIPE.REC_FILE (UUID,UPLOADPATH,FILETYPE,FILENAME,R_NO,I_NO,B_NO,S_NO) values ('cae8b0ce-a936-415a-a173-cbb63c0ba17a','2023\08\07\','R','만두5.jpg',4,null,2,null);
+Insert into RECIPE.REC_FILE (UUID,UPLOADPATH,FILETYPE,FILENAME,R_NO,I_NO,B_NO,S_NO) values ('fb902b7f-7b1b-466b-8a16-e11b491b39ee','2023\08\07\','R','만전3.jpg',5,null,2,null);
+Insert into RECIPE.REC_FILE (UUID,UPLOADPATH,FILETYPE,FILENAME,R_NO,I_NO,B_NO,S_NO) values ('13d2f80b-45c4-4782-b2a6-60473548b531','2023\08\07\','R','만전4.jpg',6,null,2,null);
+Insert into RECIPE.REC_FILE (UUID,UPLOADPATH,FILETYPE,FILENAME,R_NO,I_NO,B_NO,S_NO) values ('2f72e10f-9ca0-4105-bb9b-183a3021178e','2023\08\07\','R','야채쿵야.jpg',7,null,2,null);
+Insert into RECIPE.REC_FILE (UUID,UPLOADPATH,FILETYPE,FILENAME,R_NO,I_NO,B_NO,S_NO) values ('87153209-d0d0-4b7e-83cb-67c1ab11700f','2023\08\07\','B','육칼만두전골.jpg',null,null,2,null);
+Insert into RECIPE.REC_FILE (UUID,UPLOADPATH,FILETYPE,FILENAME,R_NO,I_NO,B_NO,S_NO) values ('e3845ed4f68ea245e1543240e4c20789','2023\08\07\','M','배추.jpg',null,2,null,null);
+Insert into RECIPE.REC_FILE (UUID,UPLOADPATH,FILETYPE,FILENAME,R_NO,I_NO,B_NO,S_NO) values ('PPPP','2023\08\07\','M','팽이버섯.jpg',null,3,null,null);
+Insert into RECIPE.REC_FILE (UUID,UPLOADPATH,FILETYPE,FILENAME,R_NO,I_NO,B_NO,S_NO) values ('5c57d3e425b8a17ef4a9e715160b7f32','2023\08\07\','M','양파.jpg',null,4,null,null);
+Insert into RECIPE.REC_FILE (UUID,UPLOADPATH,FILETYPE,FILENAME,R_NO,I_NO,B_NO,S_NO) values ('DWDWDWDDDD','2023\08\07\','M','청양고추.jpg',null,5,null,null);
+Insert into RECIPE.REC_FILE (UUID,UPLOADPATH,FILETYPE,FILENAME,R_NO,I_NO,B_NO,S_NO) values ('cf95f7a9a402160e883887b882107745','2023\08\07\','M','대파.jpg',null,6,null,null);
+Insert into RECIPE.REC_FILE (UUID,UPLOADPATH,FILETYPE,FILENAME,R_NO,I_NO,B_NO,S_NO) values ('6fbc62b02932672f4b15fb5be626c7c6','2023\08\07\','M','물컵.jpg',null,7,null,null);
+Insert into RECIPE.REC_FILE (UUID,UPLOADPATH,FILETYPE,FILENAME,R_NO,I_NO,B_NO,S_NO) values ('ErE','2023\08\07\','M','떡국떡.jpg',null,8,null,null);
+Insert into RECIPE.REC_FILE (UUID,UPLOADPATH,FILETYPE,FILENAME,R_NO,I_NO,B_NO,S_NO) values ('step1','2023\08\07\','S','만두전골요리순서1.JPG',null,null,2,2);
+Insert into RECIPE.REC_FILE (UUID,UPLOADPATH,FILETYPE,FILENAME,R_NO,I_NO,B_NO,S_NO) values ('step2','2023\08\07\','S','만두전골요리순서2.JPG',null,null,2,3);
+Insert into RECIPE.REC_FILE (UUID,UPLOADPATH,FILETYPE,FILENAME,R_NO,I_NO,B_NO,S_NO) values ('step3','2023\08\07\','S','만두전골요리순서3.JPG',null,null,2,4);
+Insert into RECIPE.REC_FILE (UUID,UPLOADPATH,FILETYPE,FILENAME,R_NO,I_NO,B_NO,S_NO) values ('step4','2023\08\07\','S','만두전골요리순서4.JPG',null,null,2,5);
+Insert into RECIPE.REC_FILE (UUID,UPLOADPATH,FILETYPE,FILENAME,R_NO,I_NO,B_NO,S_NO) values ('step9','2023\08\07\','S','만두전골요리순서9.JPG',null,null,2,6);
+Insert into RECIPE.REC_FILE (UUID,UPLOADPATH,FILETYPE,FILENAME,R_NO,I_NO,B_NO,S_NO) values ('step6','2023\08\07\','S','만두전골요리순서6.JPG',null,null,2,7);
+Insert into RECIPE.REC_FILE (UUID,UPLOADPATH,FILETYPE,FILENAME,R_NO,I_NO,B_NO,S_NO) values ('step7','2023\08\07\','S','만두전골요리순서7.JPG',null,null,2,8);
+Insert into RECIPE.REC_FILE (UUID,UPLOADPATH,FILETYPE,FILENAME,R_NO,I_NO,B_NO,S_NO) values ('step8','2023\08\07\','S','만두전골요리순서8.JPG',null,null,2,9);
+Insert into RECIPE.REC_FILE (UUID,UPLOADPATH,FILETYPE,FILENAME,R_NO,I_NO,B_NO,S_NO) values ('step5','2023\08\07\','S','만두전골요리순서5.JPG',null,null,2,10);
+Insert into RECIPE.REC_FILE (UUID,UPLOADPATH,FILETYPE,FILENAME,R_NO,I_NO,B_NO,S_NO) values ('cdd94a1d-50a3-40d5-b02f-1d344e9578ea','2023\08\07\','R','요리사.jpg',2,null,2,null);
+Insert into RECIPE.REC_FILE (UUID,UPLOADPATH,FILETYPE,FILENAME,R_NO,I_NO,B_NO,S_NO) values ('8ff2c8f4-ce66-4be6-8716-0f70272dbb5a','2023\08\07\','R','2323.jpg',8,null,2,null);
+Insert into RECIPE.REC_FILE (UUID,UPLOADPATH,FILETYPE,FILENAME,R_NO,I_NO,B_NO,S_NO) values ('64cdc6dc-d046-4a4d-b262-fc0de464b088','2023\08\07\','R','2323.jpg',1,null,2,null);
+Insert into RECIPE.REC_FILE (UUID,UPLOADPATH,FILETYPE,FILENAME,R_NO,I_NO,B_NO,S_NO) values ('add1c469-6f43-4314-9c1e-ce5e694c85b8','2023\08\07\','R','만전2.jpg',3,null,2,null);
+Insert into RECIPE.REC_FILE (UUID,UPLOADPATH,FILETYPE,FILENAME,R_NO,I_NO,B_NO,S_NO) values ('f16b36d1-5d4e-4ac8-92cd-8b9ae078e898','2023\08\07\','R','요리사.jpg',11,null,2,null);
+--------------------------------------------------------------------------------
+
 Insert into REC_CATEGORY values (1,'종류별',11,'국/탕/찌개');
 Insert into REC_CATEGORY values (1,'종류별',12,'면/국수/파스타');
 Insert into REC_CATEGORY values (1,'종류별',13,'밥/죽');
@@ -959,7 +1113,7 @@ CREATE SEQUENCE seq_board
     INCREMENT BY 1
     START WITH 1;
 
-? com_board insert문
+-- com_board insert문
 
 INSERT INTO com_board (com_bno, nickName, com_title, com_content, replycnt, mno)
 VALUES (seq_board.nextval , '박덕배', '집통닭만들어보세요', '시장에서 사먹는 통닭맛 집에서도 느껴보세요', 0, 1);
@@ -967,6 +1121,42 @@ INSERT INTO com_board (com_bno, nickName, com_title, com_content, replycnt, mno)
 VALUES (seq_board.nextval , '김춘자', '분식집떡볶이바로그맛', '어렸을적 학교앞에서 사먹는맛 !!', 0, 1);
 INSERT INTO com_board (com_bno, nickName, com_title, com_content, replycnt, mno)
 VALUES (seq_board.nextval , '요리퀸', '아삭오이소박이', '정말 아삭한 오이소박이랍니다~', 0, 1);
+
+SELECT T.* 
+    , uploadpath||uuid||'_'||filename savepath
+     , DECODE(filetype , 'I', uploadpath||'thum_'||uuid||'_'||filename, 'file') t_savepath
+ 			FROM com_file T ;
+
+SELECT *
+				FROM (
+				  SELECT t.*, ROWNUM rn
+				  FROM (
+				         SELECT  ct.com_bno, ct.nickname, ct.com_title, ct.com_content, ct.replycnt,
+				          		CASE WHEN ct.regdate >= TRUNC(SYSDATE) - 3 THEN 'new' ELSE '' END AS newpost,
+				          		CASE WHEN TO_CHAR(ct.regdate, 'YYYY/MM/DD') = TO_CHAR(SYSDATE, 'YYYY/MM/DD') 
+				          			THEN TRUNC(ROUND((SYSDATE - ct.regdate) * 24, 2)) || '시간 전'  
+				          			 WHEN ct.regdate >= TRUNC(SYSDATE) - 7 AND ct.regdate < TRUNC(SYSDATE) 
+				          			THEN TRUNC(ROUND(SYSDATE - ct.regdate)) || '일 전'
+				          			ELSE TO_CHAR(ct.regdate, 'YYYY/MM/DD') END AS regdate
+				          	FROM com_board ct
+				          	 -- WHERE com_content LIKE '%' || #{sWord} || '%'
+                              ) t
+				)
+				WHERE rn BETWEEN 1 AND 20;
+
+Insert into com_board
+    select
+        seq_board.nextval,
+        '회원 ' || level,
+        '어디서 타는 냄새 안 나요? ' || level,
+        '지금 내 스파게티가 불타고 있잖아요 ' || level,
+        sysdate,
+        sysdate,
+        level,
+        level
+        from dual
+        connect by level <= 100;
+        
 
 -- 2. com_file 파일저장소
 
